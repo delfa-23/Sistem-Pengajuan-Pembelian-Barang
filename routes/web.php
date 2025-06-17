@@ -48,6 +48,9 @@ use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\FileUploadController;
 use App\Http\Controllers\JalankanJobController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\ManajerController;
+use App\Http\Controllers\KaryawanController;
+
 
 Route::get('/landing', function () {
     return view('landing');
@@ -68,6 +71,48 @@ Route::get('/dashboard', function () {
     return redirect()->route('landing');
 });
 
+use App\Http\Controllers\AdminController;
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+
+    Route::get('/karyawan', [AdminController::class, 'karyawanIndex'])->name('karyawan.index');
+
+    // Data manajer
+    Route::get('/manajer', [AdminController::class, 'manajerIndex'])->name('manajer.index');
+
+    Route::resource('users', AdminController::class)->except(['show']);
+
+    Route::resource('users', AdminController::class)->except(['show']);
+});
+
+// Routes/web.php
+
+use App\Http\Controllers\AdminAuthController;
+
+// Halaman login admin
+Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])->name('admin.login')->middleware('guest');
+
+// Proses login admin
+Route::post('/admin/login', [AdminAuthController::class, 'login'])->middleware('guest');
+
+Route::get('/register/admin', [AuthController::class, 'showRegisterAdmin'])->name('register.admin.show');
+
+// Proses register admin
+Route::post('/register/admin', [AuthController::class, 'registerAdmin'])->name('register.admin');
+
+
+// web.php
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.dashboard');
+});
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/pengajuan', [App\Http\Controllers\PengajuanController::class, 'index'])->name('admin.pengajuan.index');
+    Route::delete('/admin/pengajuan/{id}', [App\Http\Controllers\PengajuanController::class, 'destroy'])->name('admin.pengajuan.destroy');
+});
+
+Route::get('/dashboard/admin', [AdminController::class, 'index'])->name('admin.dashboard');
 
 // Halaman Dashboard (tergantung role, misal karyawan atau manajer)
 Route::middleware('auth')->group(function () {
@@ -86,12 +131,30 @@ Route::middleware('auth')->group(function () {
         return view('dashboard.manajer');
     })->name('dashboard.manajer')->middleware('auth'); // Pastikan middleware role sudah ada
 
-    Route::get('/profile', [UserController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [UserController::class, 'update'])->name('profile.update');
+    Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/edit', [UserController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile/update', [UserController::class, 'update'])->name('profile.update');
+});
+
+Route::resource('manajer', ManajerController::class);
+Route::get('/manajer/{id}/edit', [ManajerController::class, 'edit'])->name('manajer.edit');
+Route::put('/manajer/{id}', [ManajerController::class, 'update'])->name('manajer.update');
+Route::delete('/manajer/{id}', [ManajerController::class, 'destroy'])->name('manajer.destroy');
+
+Route::resource('karyawan', KaryawanController::class);
+Route::get('/karyawan/{id}/edit', [KaryawanController::class, 'edit'])->name('karyawan.edit');
+Route::put('/karyawan/{id}', [KaryawanController::class, 'update'])->name('karyawan.update');
+Route::delete('/karyawan/{id}', [KaryawanController::class, 'destroy'])->name('karyawan.destroy');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile/password', [UserController::class, 'editPassword'])->name('profile.updatePassword');
+    Route::put('/profile/password', [UserController::class, 'updatePassword'])->name('profile.passwordUpdate');
+});
 
 
-    // Pengajuan
-    Route::get('/pengajuan', [PengajuanController::class, 'index'])->name('pengajuan.index');
+
+
+
     Route::get('/pengajuan/tambah', [PengajuanController::class, 'create'])->name('pengajuan.create');
     Route::post('/pengajuan', [PengajuanController::class, 'store'])->name('pengajuan.store');
     Route::get('/pengajuan/{id}/approve', [PengajuanController::class, 'approve'])->name('pengajuan.approve');
@@ -102,6 +165,13 @@ Route::middleware('auth')->group(function () {
 
     // Logout
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+});
+Route::middleware(['auth'])->group(function () {
+    // Form untuk ubah password
+    Route::get('/profile/password', [UserController::class, 'editPassword'])->name('profile.editPassword');
+
+    // Proses ubah password
+    Route::put('/profile/password', [UserController::class, 'updatePassword'])->name('profile.updatePassword');
 });
 
 // Route::controller(FileUploadController::class)->group(function () {
@@ -124,15 +194,17 @@ Route::get('/email/verify', function (Request $request) {
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
 
-    if (auth()->user()->role==='manajer')
-    {
+    $role = auth()->user()->role;
+
+    if ($role === 'admin') {
+        return redirect()->route('admin.dashboard')->with('message', 'Email verified successfully!');
+    } elseif ($role === 'manajer') {
         return redirect()->route('dashboard.manajer')->with('message', 'Email verified successfully!');
-    }
-    else
-    {
+    } else {
         return redirect()->route('dashboard.karyawan')->with('message', 'Email verified successfully!');
     }
 })->middleware(['auth', 'signed'])->name('verification.verify');
+
 
 Route::middleware(['auth'])->get( '/email/verification-notification', function (Request $request){
 $request->user( )->sendEmailVerificationNotification( );

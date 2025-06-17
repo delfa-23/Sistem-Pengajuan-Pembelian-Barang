@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Manajer</title>
+    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/jpg">
 </head>
 <body>
 
@@ -14,9 +15,12 @@
             <div class="user-info">
                 <div class="dropdown">
                     <button class="dropdown-toggle">
-                        <img src="{{ asset(Auth::user()->photo_url) }}" alt="Foto Profil" class="navbar-profile">
-                        <span>{{ Auth::user()->name }}</span>
+                        <div class="profile-wrapper">
+                            <img src="{{ asset(Auth::user()->photo_url) }}" alt="Foto Profil" class="navbar-profile">
+                            <span class="profile-name">{{ Auth::user()->name }}</span>
+                        </div>
                     </button>
+
 
                     <div class="dropdown-content">
                         <a href="{{ route('profile.edit') }}">Profil</a>
@@ -159,6 +163,26 @@
         .navbar .dropdown button:hover {
             background-color: #34495e;
         }
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            gap: 10px;
+        }
+
+        .profile-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-name {
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+
 
         .user-info {
             display: flex;

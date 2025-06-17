@@ -37,7 +37,7 @@
         <div class="mb-3">
             <label for="secret" class="form-label">Kode Akses (Opsional)</label>
             <input id="secret" type="text" name="secret" class="form-control">
-            <small class="form-text text-muted">Hanya isi jika Anda adalah manajer</small>
+            <small class="form-text text-muted">Only Fill In If You Are a Manager</small>
             @error('secret')
                 <div class="text-danger">{{ $message }}</div>
             @enderror

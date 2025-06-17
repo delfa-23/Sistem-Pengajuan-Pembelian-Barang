@@ -1,7 +1,15 @@
-
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Pengajuan</title>
+    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/jpg">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
 <div class="container">
     @if(Auth::user()->role === 'manajer')
         <a href="{{ route('dashboard.manajer') }}" class="btn btn-secondary">← Kembali ke Dashboard</a>
+    @elseif(Auth::user()->role === 'admin')
+        <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">← Kembali ke Dashboard</a>
     @else
         <a href="{{ route('dashboard.karyawan') }}" class="btn btn-secondary">← Kembali ke Dashboard</a>
     @endif
@@ -21,7 +29,7 @@
                 <th>Jumlah</th>
                 <th>Keterangan</th>
                 <th>Status</th>
-                @if(Auth::user()->role == 'manajer')
+                @if(in_array(Auth::user()->role, ['manajer', 'admin']))
                     <th>User</th>
                     <th>Aksi</th>
                 @endif
@@ -34,16 +42,18 @@
                     <td>{{ $p->jumlah }}</td>
                     <td>{{ $p->keterangan }}</td>
                     <td>{{ ucfirst($p->status) }}</td>
-                    <td>@if(Auth::user()->role == 'karyawan' && $p->status == 'menunggu' && $p->user_id == Auth::id())
-                        <a href="{{ route('pengajuan.edit', $p->id) }}" class="btn btn-warning">Edit</a>
-                    @endif
-                    @if(Auth::user()->role == 'manajer')
-                        {{ $p->user->name ?? '-' }}</td>
+
+                    @if(Auth::user()->role == 'karyawan' && $p->status == 'menunggu' && $p->user_id == Auth::id())
+                        <td colspan="2">
+                            <a href="{{ route('pengajuan.edit', $p->id) }}" class="btn btn-warning">Edit</a>
+                        </td>
+                    @elseif(in_array(Auth::user()->role, ['manajer', 'admin']))
+                        <td>{{ $p->user->name ?? '-' }}</td>
                         <td>
                             @if($p->status == 'menunggu')
-                            <a class="btn" href="{{ route('pengajuan.approve', $p->id) }}">Setujui</a>
-                            <a class="btn btn-secondary" href="{{ route('pengajuan.reject', $p->id) }}">Tolak</a>
-                            <form action="{{ route('pengajuan.destroy', $p->id) }}" method="POST" style="display:inline;">
+                                <a class="btn" href="{{ route('pengajuan.approve', $p->id) }}">Setujui</a>
+                                <a class="btn btn-secondary" href="{{ route('pengajuan.reject', $p->id) }}">Tolak</a>
+                                <form action="{{ route('pengajuan.destroy', $p->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus?')">Hapus</button>
@@ -52,13 +62,13 @@
                                 -
                             @endif
                         </td>
-
                     @endif
                 </tr>
             @endforeach
         </tbody>
     </table>
 </div>
+
 
     <style>
         body {

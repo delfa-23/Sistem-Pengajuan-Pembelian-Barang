@@ -4,30 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Karyawan</title>
+    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/jpg">
 </head>
 <body>
 
     <!-- Navbar -->
     <div class="navbar">
-            <h1>Dashboard Karyawan</h1>
+        <h1>Dashboard Karyawan</h1>
 
-            <div class="user-info">
-                <div class="dropdown">
-                    <button class="dropdown-toggle">
+        <div class="user-info">
+            <div class="dropdown">
+                <button class="dropdown-toggle">
+                    <div class="profile-wrapper">
                         <img src="{{ asset(Auth::user()->photo_url) }}" alt="Foto Profil" class="navbar-profile">
-                        <span>{{ Auth::user()->name }}</span>
-                    </button>
-
-                    <div class="dropdown-content">
-                        <a href="{{ route('profile.edit') }}">Profil</a>
-                        <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin Logout?')">
-                            @csrf
-                            <button type="submit" class="logout-btn">Logout</button>
-                        </form>
+                        <span class="profile-name">{{ Auth::user()->name }}</span>
                     </div>
+                </button>
+
+
+                <div class="dropdown-content">
+                    <a href="{{ route('profile.edit') }}">Profil</a>
+                    <a href="{{ route('profile.updatePassword') }}">Update Password</a>
+                    <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin Logout?')">
+                        @csrf
+                        <button type="submit" class="logout-btn">Logout</button>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
 
     <!-- Main Content -->
     <div class="container">
@@ -35,10 +40,11 @@
         <p>Ajukan kebutuhan barangmu dengan mudah.</p>
         <a href="{{ route('pengajuan.index') }}" class="btn">Lihat / Ajukan Barang</a>
         <a href="{{ route('verification.notice') }}" class="btn1">Verifikasi Email</a><br><br>
+
         @if (session('message'))
-        <div class="alert alert-success">
-            {{ session('message') }}
-        </div>
+            <div class="alert alert-success">
+                {{ session('message') }}
+            </div>
         @endif
     </div>
 
@@ -60,6 +66,7 @@
 
 </body>
 </html>
+
 
 <style>
     body {
@@ -149,6 +156,26 @@
     .navbar .dropdown button:hover {
         background-color: #34495e;
     }
+    .dropdown-toggle {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        gap: 10px;
+    }
+
+    .profile-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .profile-name {
+        font-weight: bold;
+        color: white;
+        font-size: 16px;
+        white-space: nowrap;
+    }
+
 
     .user-info {
         display: flex;

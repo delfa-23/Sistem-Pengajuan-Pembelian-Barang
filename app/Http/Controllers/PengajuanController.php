@@ -12,13 +12,18 @@ class PengajuanController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role == 'manajer') {
-            $data = Pengajuan::with('user')->latest()->get();
-        } else {
-            $data = Pengajuan::where('user_id', $user->id)->latest()->get();
+        if ($user->role === 'admin') {
+            $pengajuans = Pengajuan::with('user')->latest()->get();
+            return view('admin.pengajuan.index', compact('pengajuans'));
         }
 
-        return view('pengajuan.index', ['pengajuans' => $data]);
+        if ($user->role === 'manajer') {
+            $pengajuans = Pengajuan::with('user')->latest()->get();
+        } else {
+            $pengajuans = Pengajuan::where('user_id', $user->id)->latest()->get();
+        }
+
+        return view('pengajuan.index', compact('pengajuans'));
     }
 
     public function create()
@@ -94,6 +99,6 @@ class PengajuanController extends Controller
     public function destroy($id)
     {
         Pengajuan::findOrFail($id)->delete();
-        return redirect('/pengajuan')->with('pesan', 'Pengajuan berhasil dihapus.');
+        return back()->with('pesan', 'Pengajuan berhasil dihapus.');
     }
 }

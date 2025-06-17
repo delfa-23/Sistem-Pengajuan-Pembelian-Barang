@@ -16,7 +16,6 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    // Proses login
     public function login(Request $request)
 {
     $request->validate([
@@ -24,26 +23,29 @@ class AuthController extends Controller
         'password' => 'required',
     ]);
 
-    // Mencari user berdasarkan email
-    // $user = \App\Models\User::where('email', $request->email)->first();
-
-    if (! auth()->attempt($request->only('email', 'password'))) {
-
+    if (!auth()->attempt($request->only('email', 'password'))) {
         return back()->withErrors([
             'email' => 'Email atau password salah.',
         ]);
     }
 
-    event(new \App\Events\UserEvent(auth()->user()));
+    $user = auth()->user();
 
-
-    // Jika user adalah manajer, arahkan ke dashboard manajer
-    if (auth()->user()->role == 'manajer') {
-        return redirect()->route('dashboard.manajer'); // Atur route sesuai dengan yang ada
+    // Cegah admin login di form user
+    if ($user->role === 'admin') {
+        auth()->logout();
+        return back()->withErrors([
+            'email' => 'Akun admin tidak bisa login di sini.',
+        ]);
     }
 
-    // Jika user adalah karyawan, arahkan ke dashboard karyawan
-    return redirect()->route('dashboard.karyawan'); // Atur route sesuai dengan yang ada
+    event(new \App\Events\UserEvent($user));
+
+    if ($user->role === 'manajer') {
+        return redirect()->route('dashboard.manajer');
+    } else {
+        return redirect()->route('dashboard.karyawan');
+    }
 }
 
 
@@ -87,6 +89,38 @@ class AuthController extends Controller
 
     return redirect()->route('login')->with('success', 'Registrasi berhasil. Silakan login.');
     }
+
+    public function showRegisterAdmin()
+{
+    return view('admin.register');
+}
+
+public function registerAdmin(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|confirmed|min:3',
+        'secret' => 'required|string', // Kode akses wajib untuk admin
+    ]);
+
+    // Cek kode akses admin
+    if ($request->secret !== 'admin123') {
+        return back()->withInput()->withErrors([
+            'secret' => 'Kode akses admin salah. Silakan coba lagi.',
+        ]);
+    }
+
+    $user = \App\Models\User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => bcrypt($request->password),
+        'role' => 'admin', // set role admin
+    ]);
+
+    return redirect()->route('login')->with('success', 'Registrasi admin berhasil. Silakan login.');
+}
+
 
     public function logout(Request $request)
     {

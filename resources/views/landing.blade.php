@@ -3,42 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upcover - Landing Page</title>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <title>Sistem Pengajuan Barang</title>
+    <link rel="icon" href="{{ asset('images/logo.png') }}" type="image/jpg">
+    <link rel="stylesheet" href="{{ asset('app.css') }}">
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
 </head>
 <body>
     <!-- Header Section -->
     <header>
         <nav>
-            <h1>Upcover</h1>
-            <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#testimonial">Testimonial</a></li>
-                <li><a href="#pricing">Pricing</a></li>
-                <li><a href="#blogs">Blogs</a></li>
-                <li><a href="#contact">Contact Us</a></li>
-                <li><a href="#login">Login</a></li>
-            </ul>
+            <h1>Sistem Pengajuan Barang</h1>
+            <div class="nav-buttons">
+                <a href="{{ route('login') }}" class="btn-login">Login</a>
+                <a href="{{ route('register') }}" class="btn-signup">Sign Up</a>
+            </div>
         </nav>
     </header>
 
     <!-- Hero Section -->
     <section id="hero" style="display: flex; align-items: center; justify-content: space-between; padding: 50px;">
         <div>
-            <h2>Get Creative & Modern With Upcover</h2>
-            <p>This is just a simple text made for this unique and awesome template, you can replace it with any text.</p>
-            <a href="#contact" class="btn">Contact Us</a>
+            <h2>Permudah Proses Pengajuan Barang di Perusahaan Anda</h2>
+            <p>Platform ini dirancang khusus untuk memfasilitasi karyawan dalam mengajukan kebutuhan barang dan memudahkan manajer dalam melakukan persetujuan secara efisien.</p>
+            <a href="#contact" class="btn">Hubungi Admin</a>
         </div>
         <div>
-            <img src="path_to_your_image.svg" alt="Illustration" style="max-width: 300px;"/>
+            <img src="{{ asset('pengajuan.png') }}" alt="Ilustrasi Pengajuan Barang" style="max-width: 300px;"/>
         </div>
     </section>
 
     <!-- Footer Section -->
     <footer>
-        <p>&copy; 2023 Upcover. All rights reserved.</p>
+        <p>&copy; 2025 Sistem Pengajuan Barang Internal. Seluruh hak cipta dilindungi.</p>
     </footer>
 
     <script src="{{ asset('js/app.js') }}"></script>
